@@ -13,13 +13,16 @@ npm run preview  # Preview production build
 
 ## Architecture
 
-This is a single-component React app (Vite + React 19). All logic lives in `src/App.jsx` — there are no sub-components, routing, or state management libraries.
+React 19 + Vite app with no routing or state management libraries. `src/App.jsx` is the root and owns the `transactions` array as the single source of truth, passing it down to three components:
+
+- **`Summary`** — receives `transactions`, computes `totalIncome`, `totalExpenses`, and `balance` internally.
+- **`TransactionForm`** — owns its own form field state (description, amount, type, category); calls `onAdd(transaction)` prop when submitted.
+- **`TransactionList`** — receives `transactions`, owns filter state (filterType, filterCategory) internally, applies filters in render via chained `.filter()`.
+
+`categories` is defined locally in both `TransactionForm` and `TransactionList`.
+
+**State shape:** Each transaction is `{ id, description, amount (number), type ("income"|"expense"), category, date }`.
 
 **Known intentional issues (part of a course):**
-- **Bug:** `amount` is stored as a string, so `reduce` concatenates instead of summing — totals are wrong. Fix: parse to `Number(t.amount)` in the reduce calls.
 - **Data:** `"Freelance Work"` is seeded as `type: "expense"` but `category: "salary"` — likely intentional course material.
 - **UI:** Minimal styling; a `.delete-btn` CSS class exists in `App.css` but no delete functionality is wired up yet.
-
-**State shape:** Each transaction is `{ id, description, amount (string), type ("income"|"expense"), category, date }`.
-
-**Filtering:** Applied client-side in render via chained `.filter()` on the `transactions` array; no derived state is memoized.
